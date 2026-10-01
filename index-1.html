@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cafe Gopal Ghaat — Customer Panel</title>
+<style>
+:root{--green:#087f3f;--dark:#173a28;--cream:#fff8ea;--gold:#d69b32;--orange:#e58a25}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f0e7;color:#222}
+.app{max-width:520px;margin:auto;background:#fff;min-height:100vh;box-shadow:0 0 30px #0001}
+header{background:linear-gradient(145deg,#fff9ed,#ead7ad);padding:18px 16px 14px;position:sticky;top:0;z-index:5;border-bottom:1px solid #eadfc9}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:58px;height:58px;border-radius:50%;background:#fff;border:2px solid var(--gold);display:grid;place-items:center;font-size:28px}
+.brand h1{font-family:Georgia,serif;margin:0;color:#4b2d12;font-size:24px}.brand small{color:#6b553c}
+.search{margin-top:14px;background:white;border:1px solid #e2d7c5;border-radius:24px;padding:12px 15px;width:100%;font-size:15px}
+.hero{margin:14px;border-radius:18px;background:linear-gradient(135deg,#17683d,#0a8b49);color:#fff;padding:18px}.hero h2{margin:0 0 6px;font-family:Georgia,serif}.hero p{margin:0;opacity:.9}
+.categories{display:flex;gap:9px;overflow:auto;padding:0 14px 10px}.cat{min-width:88px;background:#fff8ea;border:1px solid #eadfc9;border-radius:14px;padding:10px 8px;text-align:center;font-size:13px}.cat b{display:block;font-size:25px;margin-bottom:4px}
+.section{padding:6px 14px}.section h3{margin:10px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.card{background:white;border:1px solid #eee2ce;border-radius:16px;overflow:hidden}.pic{height:125px;background:linear-gradient(135deg,#f3c46c,#f7e6bd);display:grid;place-items:center;font-size:55px}.info{padding:11px}.info h4{margin:0 0 5px}.desc{font-size:12px;color:#777;min-height:31px}.row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}.price{font-weight:700;font-size:17px;color:var(--green)}button{border:0;border-radius:10px;background:var(--green);color:#fff;padding:9px 12px;font-weight:700;cursor:pointer}
+.bottom{position:sticky;bottom:0;background:#fff;border-top:1px solid #ddd;padding:10px 14px;display:flex;gap:10px;z-index:6}.bottom button{flex:1}
+.modal{position:fixed;inset:0;background:#0007;display:none;align-items:flex-end;z-index:20}.sheet{background:#fff;width:min(520px,100%);margin:auto;border-radius:22px 22px 0 0;padding:18px;max-height:90vh;overflow:auto}.sheet h2{margin-top:0}.cartline{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #eee;padding:10px 0}.qty button{padding:4px 9px}.field{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:7px 0;font-size:15px}.total{display:flex;justify-content:space-between;font-size:20px;font-weight:700;margin:15px 0}
+.success{text-align:center;padding:35px 10px}.success .check{font-size:70px;color:var(--green)}
+.notice{font-size:12px;color:#777;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand">
+    <div class="logo">🦚</div>
+    <div><h1>Cafe Gopal Ghaat</h1><small>Radhakund • Govardhan</small></div>
+  </div>
+  <input id="search" class="search" placeholder="🔎  Food, drinks, snacks search karein..." oninput="render()">
+</header>
+
+<div class="hero"><h2>स्वाद भी • सेवा भी</h2><p>QR scan karke order karein — simple, fast aur professional.</p></div>
+
+<div class="categories">
+  <div class="cat">☕<b>Chai</b>Coffee</div><div class="cat">🍜<b>Maggi</b>Noodles</div>
+  <div class="cat">🥪<b>Snacks</b>Quick Bites</div><div class="cat">🍔<b>Burger</b>Meals</div>
+  <div class="cat">🥤<b>Drinks</b>Cold</div><div class="cat">🍦<b>Ice Cream</b></div>
+</div>
+
+<section class="section"><h3>Popular Items</h3><div id="products" class="grid"></div></section>
+
+<div class="bottom"><button onclick="openCart()">🛒 Cart <span id="count">(0)</span></button><button onclick="openCheckout()">Place Order →</button></div>
+</div>
+
+<div id="cartModal" class="modal" onclick="if(event.target===this)closeModal('cartModal')">
+ <div class="sheet"><h2>Your Cart</h2><div id="cart"></div><div class="total"><span>Total</span><span id="cartTotal">₹0</span></div><button style="width:100%" onclick="openCheckout()">Proceed to Order</button></div>
+</div>
+
+<div id="checkoutModal" class="modal" onclick="if(event.target===this)closeModal('checkoutModal')">
+ <div class="sheet">
+  <h2>Order Details</h2>
+  <input id="name" class="field" placeholder="Customer name *">
+  <input id="phone" class="field" inputmode="numeric" placeholder="Mobile number *">
+  <select id="type" class="field"><option>Self Pickup</option><option>Delivery</option></select>
+  <textarea id="address" class="field" rows="3" placeholder="Address / landmark"></textarea>
+  <textarea id="note" class="field" rows="2" placeholder="Special instructions (optional)"></textarea>
+  <div class="total"><span>Total</span><span id="checkoutTotal">₹0</span></div>
+  <button style="width:100%;font-size:16px" onclick="placeOrder()">🟢 Place Order on WhatsApp</button>
+  <div class="notice">Aapki details sirf order process karne ke liye use hongi.</div>
+ </div>
+</div>
+
+<div id="successModal" class="modal">
+ <div class="sheet success"><div class="check">✓</div><h2>Order Placed Successfully!</h2><p>Aapka order Cafe Gopal Ghaat ko bhej diya gaya hai.</p><button onclick="closeModal('successModal')">Continue Shopping</button></div>
+</div>
+
+<script>
+const WHATSAPP_NUMBER = "91XXXXXXXXXX"; // Yahan cafe ka WhatsApp number dalein.
+const products=[
+ {id:1,n:"Plain Maggi",p:50,e:"🍜",d:"Simple & tasty"},
+ {id:2,n:"Veg Maggi",p:70,e:"🍜",d:"Fresh vegetables & masala"},
+ {id:3,n:"Cheese Maggi",p:90,e:"🧀",d:"Cheesy & hot"},
+ {id:4,n:"Masala Maggi",p:80,e:"🌶️",d:"Special masala"},
+ {id:5,n:"Hakka Noodles",p:90,e:"🍝",d:"Indian Chinese style"},
+ {id:6,n:"Chai (Kulhad)",p:40,e:"☕",d:"Hot chai"},
+ {id:7,n:"Patties",p:30,e:"🥐",d:"Fresh & crispy"},
+ {id:8,n:"Water Bottle 1L",p:20,e:"💧",d:"Chilled water"},
+ {id:9,n:"Burger",p:80,e:"🍔",d:"Fresh burger"},
+ {id:10,n:"Ice Cream",p:60,e:"🍦",d:"Cold & creamy"}
+];
+let cart=JSON.parse(localStorage.getItem("cgg_cart")||"{}");
+function save(){localStorage.setItem("cgg_cart",JSON.stringify(cart));document.getElementById("count").textContent="("+Object.values(cart).reduce((a,b)=>a+b,0)+")"}
+function render(){
+ const q=(document.getElementById("search").value||"").toLowerCase();
+ document.getElementById("products").innerHTML=products.filter(x=>(x.n+x.d).toLowerCase().includes(q)).map(x=>`
+ <div class="card"><div class="pic">${x.e}</div><div class="info"><h4>${x.n}</h4><div class="desc">${x.d}</div><div class="row"><span class="price">₹${x.p}</span><button onclick="add(${x.id})">+ Add</button></div></div></div>`).join("");
+ save();
+}
+function add(id){cart[id]=(cart[id]||0)+1;save();openCart();}
+function remove(id){delete cart[id];save();openCart();}
+function change(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];save();openCart();}
+function total(){return Object.entries(cart).reduce((s,[id,q])=>s+products.find(x=>x.id==id).p*q,0)}
+function cartHTML(){return Object.entries(cart).map(([id,q])=>{let x=products.find(a=>a.id==id);return `<div class="cartline"><div><b>${x.n}</b><br>₹${x.p} × ${q}</div><div class="qty"><button onclick="change(${id},-1)">−</button> ${q} <button onclick="change(${id},1)">+</button><br><button style="background:#b33;margin-top:5px" onclick="remove(${id})">Remove</button></div></div>`}).join("")||"<p>Cart empty hai.</p>"}
+function openCart(){document.getElementById("cart").innerHTML=cartHTML();document.getElementById("cartTotal").textContent="₹"+total();document.getElementById("cartModal").style.display="flex"}
+function openCheckout(){if(!Object.keys(cart).length){openCart();return}closeModal("cartModal");document.getElementById("checkoutTotal").textContent="₹"+total();document.getElementById("checkoutModal").style.display="flex"}
+function closeModal(id){document.getElementById(id).style.display="none"}
+function placeOrder(){
+ const name=document.getElementById("name").value.trim(),phone=document.getElementById("phone").value.trim(),type=document.getElementById("type").value,address=document.getElementById("address").value.trim(),note=document.getElementById("note").value.trim();
+ if(!name||!phone){alert("Name aur mobile number zaroor bharein.");return}
+ let lines=Object.entries(cart).map(([id,q])=>{let x=products.find(a=>a.id==id);return `${x.n} x ${q} = ₹${x.p*q}`}).join("\n");
+ const msg=`*Cafe Gopal Ghaat - New Order*%0A%0A*Customer:* ${encodeURIComponent(name)}%0A*Mobile:* ${encodeURIComponent(phone)}%0A*Type:* ${encodeURIComponent(type)}%0A*Address:* ${encodeURIComponent(address)}%0A%0A*Items:*%0A${encodeURIComponent(lines)}%0A%0A*Total: ₹${total()}*%0A*Note:* ${encodeURIComponent(note)}`;
+ window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`,"_blank");
+ cart={};save();closeModal("checkoutModal");document.getElementById("successModal").style.display="flex";
+}
+render();
+</script>
+</body>
+</html>
